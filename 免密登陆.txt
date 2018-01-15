@@ -1,0 +1,149 @@
+一、准备工作
+
+1) 用客户端工具（ssh client或者putty）连接到linux服务器。在root用户下输入命令
+
+vi /etc/hosts,用vi编辑hosts文件，如下：
+复制代码
+
+#127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+
+#::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+
+192.168.1.160 hadoop01
+
+192.168.1.161 hadoop02
+
+192.168.1.162 hadoop03
+
+192.168.1.163 hadoop04
+
+192.168.1.164 hadoop05
+
+复制代码
+
+2) 输入命令：cd .ssh进入rsa公钥私钥文件存放的目录，删除目录下的id_rsa，id_rsa.pub文件。
+二、在每台机上产生新的rsa公钥私钥文件，并统一拷贝到一个authorized_keys文件中
+
+1) 登录hadoop01，在.ssh目录下输入命令：
+
+ssh-keygen -t rsa
+
+，三次回车后，该目录下将会产生id_rsa，id_rsa.pub文件。其他主机也使用该方式产生密钥文件。
+
+2) 登录hadoop01，输入命令：
+
+cat id_rsa.pub >> authorized_keys
+
+,将id_rsa.pub公钥内容拷贝到authorized_keys文件中。
+
+3) 登录其他主机，将其他主机的公钥文件内容都拷贝到hadoop01主机上的authorized_keys文件中，命令如下：
+复制代码
+
+ssh-copy-id -i hadoop01 #登录hadoop02,将公钥拷贝到hadoop01的authorized_keys中
+
+ssh-copy-id -i hadoop01#登录hadoop03,将公钥拷贝到hadoop01的authorized_keys中
+
+ssh-copy-id -i hadoop01#登录hadoop04,将公钥拷贝到hadoop01的authorized_keys中
+
+ssh-copy-id -i hadoop01 #登录hadoop05,将公钥拷贝到hadoop01的authorized_keys中，最终authorized_keys文件内容如下：
+
+复制代码
+复制代码
+
+[root@hadoop01 .ssh]# more authorized_keys
+
+ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAp7jp4a1/deK4B/eZW8kdiCQvzpKe4Id0uP0DdONFW85r
+
+20rpH4ZpNSB7JNYFiqjMUPQ/2EWLXh7xoa9UntKsMVVcZr3BTiXRZ0Gx7IDacwz8Cq0qYrwUCMTKt7QF
+
+xK5RwXyuZqDFjc2yC3/ZoqeyeLERFTll3ZLGeFsXhJjlkPTvtnvx0zX6lacPZL4VguoM5YHw3KaJg8bd
+
+qehJzbQoPS8sm00ES4iygbR+Ixz1cnGTrtNU1S3lh4/y0PC6spMs9Z2Mf097FTLQJXJDiGqU9Tq3MHvl
+
+srZFx92H4yeiJuYWJaZImuiq/feRIo30Dig6obEfuAn13vevdXozcXNlYQ== root@hadoop03
+
+ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAwpEgmBzfGw1mrKy3Ho8k/h4jrZlRdIzuLs6PKqDPV/Cw
+
+2kjSYXV7tyGklUYWPWr1Dt6kw5+Ojr7zv+cFnFWKzTTAJz3V4md0RyQ11Kb+IJA7b88SRHcVLlNF2GDX
+
+N2pVqh9lf6Zu6zfpnAjCg/mU8qzTrZfFZdzPtBppimMq+l0bolvgnxEEkpFTNkpHB8+cD732WL+KiW52
+
+7nt0LGBbVbZz9mUa+0bsPGK7ySfk1SPUkGyNXXqVjEydyjvRY8bob7Q3mFX3MpDT696R8n7U7hQ7u4b8
+
+gbe3rIuQcWwGseEQrGjIDhLb9am3dbgDuFeg73RJqFZMOp2y6zQF3jQIew== root@hadoop02
+
+ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAmc2M6Bzw1cPaDwjbtgynJPWRKv9pDnHjBSn5BDbIX0po
+
+8GHHGr1pvYMGu4XWlIa76O44+bmF32K/9ECzBcNVL6a+aN5HWdUPpE6zagFUcaewXu2p4+FCZWpoTZbj
+
+zHKGeay35Id+mpltZUWZlR5lOX+G/veNzuZNpKXnVYoZdAaJ3XlH6IVhKlGOuZkXxvD7e+YD4oxZw+4o
+
+iaav/QtAhZHXWcAt2eVj9xw+j/3Ip5ImmIWHv5/AOFrgiY6c6U+2g5xOGONINbh9CxQ1L4HbQVAx8hYC
+
+stWUm0LfFAcMwXDwb8RAFj+cH+D/xG6CrORLb4UfroJHa6N64rx/5dmz7w== root@hadoop04
+
+ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAxAsHr8Jp4vXI7bPGmSsO/+bT43GsxQ4GKdGf8qLPsFY+
+
+/KluWl0TrRLwBVHGc94gpN2JOqtvKYYDSHw4Fj6KPSk/6Nt8CutZAwASoVxzexTFMOSwNFpTMsLc7Oza
+
+Q3XG6v6PgtBEJqdUdl4zIFAZnkZjKmZp8SWG1jGo/vl3jsbrnmFQFeH04MdVcm9r1wvl80bdF9YvYEtg
+
+ymHO4/tANKWSNKGw2EcthNWyQiN4hIYOoBQaUA3FlAXyqcD2+Q+2frf0gNF5KfKKLXmmlAuS9Oi6JqFJ
+
+f1BLmMquI4n02owzU0zlkj3Px5IcCfQbDQ/JedHcjxEKP2S+9m3yxG4h2Q== root@hadoop05
+
+ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAyS1PbXTgFqHcGV/k0QUZni5xB5+q71qx4r5xto+WLkVQ
+
+MiS3gR/VYZoyDLrQRVf5t0JiliCgHeU0MG/ASd1LPbsVYCX5V9cmcm1hMByDKJ6FwIxz5cY4y1dBpwAZ
+
+2E24CQWfZuevaeIFnL80RGGLhRgCxbLb3aPvRZuV34utD+5kgAFJwYCQYN4KnFG1S5e4X6U5J3FsCDby
+
+GD7dhtWWktMV2SAnWjrmULguaVRqO0sDIEiVSc9+KKqAmlOab+5SbZAI5+3hzJog5c3i4f5fHXWnxYqy
+
+LNo3yYSWraV5KcYIlNPqX6iJKvjLWbNDwD3+70u4nWjBSXXufhff71LdHw== root@hadoop01
+
+复制代码
+三、授权authorized_keys文件
+
+1) 登录hadoop01,在.ssh目录下输入命令：
+
+chmod 600 authorized_keys
+
+,效果如下：
+复制代码
+
+[root@hadoop01 .ssh]# ls -al
+
+total 28
+
+drwx------.  2 root root 4096 Oct 24 12:27 .
+
+dr-xr-x---. 22 root root 4096 Oct 24 19:20 ..
+
+-rw-------.  1 root root 1975 Oct 24 12:27 authorized_keys
+
+-rw-------.  1 root root 1975 Oct 24 12:09 authorized_keys_20141024
+
+-rw-------.  1 root root 1675 Oct 24 12:23 id_rsa
+
+-rw-r--r--.  1 root root  395 Oct 24 12:23 id_rsa.pub
+
+-rw-r--r--.  1 root root 2020 Oct 24 12:10 known_hosts
+
+复制代码
+四、将授权文件分配到其他主机上
+
+1) 登录hadoop01,将授权文件拷贝到hadoop02、hadoop03...,命令如下：
+复制代码
+
+scp /root/.ssh/authorized_keys hadoop02:/root/.ssh/ #拷贝到hadoop02上
+
+scp /root/.ssh/authorized_keys hadoop03:/root/.ssh/ #拷贝到hadoop03上
+
+scp /root/.ssh/authorized_keys hadoop04:/root/.ssh/ #拷贝到hadoop04上
+
+scp /root/.ssh/authorized_keys hadoop05:/root/.ssh/ #拷贝到hadoop05上
+
+复制代码
+
+2) 至此，免密码登录已经设定完成，注意第一次ssh登录时需要输入密码，再次访问时即可免密码登录。
